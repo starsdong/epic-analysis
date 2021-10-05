@@ -72,6 +72,9 @@ class Kinematics : public TObject
     // kinematics (should be Double_t, if going in SimpleTree)
     Double_t W,Q2,Nu,x,y,s; // DIS
     Double_t pLab,pTlab,phiLab,etaLab,z,pT,qT,mX,xF,phiH,phiS; // hadron
+    Double_t pLab1,pTlab1,phiLab1,etaLab1,z1,pT1,qT1,mX1,xF1,phiH1,phiS1,pTcom1; // dihadron, positive                                    
+    Double_t pLab2,pTlab2,phiLab2,etaLab2,z2,pT2,qT2,mX2,xF2,phiH2,phiS2,pTcom2; // dihadron, negative                                             
+    Double_t pTtrig,pTassoc,phiTrig,phiAssoc,etaTrig,etaAssoc,zTrig,zAssoc; // saturation pairs                                     
   
     Double_t sigmah, Pxh, Pyh; // hadronic final state
 

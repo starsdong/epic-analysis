@@ -224,6 +224,13 @@ void Analysis::Prepare() {
     HS->DefineHist1D("qT_jet","jet q_{T}", "GeV", NBINS, 0, 10.0);
     HS->DefineHist1D("jperp","j_{#perp}","GeV", NBINS, 0, 3.0);
     HS->DefineHist1D("qTQ_jet","jet q_{T}/Q","", NBINS, 0, 3.0);
+    // saturation
+    HS->DefineHist1D("Npair", "N_{pair} (#delta#phi)","rad", NBINS, -2*M_PI, 2*M_PI );
+    HS->DefineHist1D("Ntrigger", "N_{trig}","rad", NBINS, -2*M_PI,2*M_PI);  // as a function of phi? and then just divide by n entries?             
+    HS->DefineHist1D("eta_trigger","#eta_trig", "", NBINS, -4,4);
+    HS->DefineHist1D("eta_assoc","#eta_assoc", "", NBINS, -4,4);
+    HS->DefineHist1D("phi_trigger","#phi_trig","rad", NBINS, -M_PI,M_PI);
+    HS->DefineHist1D("phi_assoc","#phi_assoc", "rad",NBINS, -M_PI,M_PI);        
     // -- resolutions
     HS->DefineHist1D("x_Res","(x-x_{true})/x_{true}","", NBINS, -1, 1);
     //HS->DefineHist1D("yRes","y - y_{true}","", NBINS, -2, 2); // TODO: defined in fullsim branch, but not yet here
@@ -502,6 +509,20 @@ void Analysis::FillHistosTracks() {
   // - called with `activeNodesOnly==true` since we only want to fill bins associated
   //   with this track
   HD->ExecuteOps(true);
+};
+void Analysis::FilHistosSaturation(){
+  // add kinematic values to `valueMap`                                                                                                         
+  valueMap.clear();
+  activeEvent = false;
+  /* DIS */
+  valueMap.insert(std::pair<TString,Double_t>( "x", kin->x ));
+  valueMap.insert(std::pair<TString,Double_t>( "q2", kin->Q2 ));
+  valueMap.insert(std::pair<TString,Double_t>( "w", kin->W ));
+  valueMap.insert(std::pair<TString,Double_t>( "y", kin->y ));
+  HD->Payload([this](Histos *H){
+    H->Hist("Npair")->Fill(kin->
+  });
+  
 };
 
 // jets
