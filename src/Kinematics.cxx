@@ -249,6 +249,61 @@ void Kinematics::CalculateHadronKinematics() {
   // qT
   qT = pT / z;
 };
+// calculate hadron kinematics for both in a dihadron pair
+void Kinematics::CalculateDiHadronKinematics() {
+  vecHadron = vecHadron1;
+  this->CalculateHadronKinematics();
+  pLab1 = pLab;
+  pTlab1 = pTlab;
+  phiLab1 = phiLab;
+  etaLab1 = etaLab;
+  z1 = z;
+  xF1 = xF;
+  phiH1 = phiH;
+  phiS1 = phiS;
+  pT1 = pT;
+  qT1 = qT;
+  pTcom1 = Reject(CvecHadron.Vect(), CvecQ.Vect()).Mag();
+
+  vecHadron = vecHadron2;
+  this->CalculateHadronKinematics();
+  pLab2 = pLab;
+  pTlab2 = pTlab;
+  phiLab2 = phiLab;
+  etaLab2 = etaLab;
+  z2 = z;
+  xF2 = xF;
+  phiH2 = phiH;
+  phiS2 = phiS;
+  pT2 = pT;
+  qT2 = qT;
+  pTcom2 = Reject(CvecHadron.Vect(), CvecQ.Vect()).Mag();
+};
+// set trigger/associate particle for a hadron pair (saturation)
+void Kinematics::SetTrigger(){
+  if(pTcom1 > pTcom2){
+    pTtrig = pTcom1;
+    phiTrig = phiLab1;
+    etaTrig = etaLab1;
+    zTrig = z1;
+
+    pTassoc = pTcom2;
+    phiAssoc = phiLab2;
+    etaAssoc = etaLab2;
+    zAssoc = z2;
+  };
+  if(pTcom1 < pTcom2){
+    pTtrig = pTcom2;
+    phiTrig = phiLab2;
+    etaTrig = etaLab2;
+    zTrig = z2;
+
+    pTassoc = pTcom1;
+    phiAssoc = phiLab1;
+    etaAssoc = etaLab1;
+    zAssoc = z1;
+  };
+};
 
 // get PID information from PID systems tracks
 int getTrackPID(Track *track, TObjArrayIter itParticle, TObjArrayIter itPIDSystemsTrack){
