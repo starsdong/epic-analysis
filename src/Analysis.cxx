@@ -60,6 +60,7 @@ Analysis::Analysis(
   finalStateToTitle.insert(std::pair<TString,TString>("KpTrack","K^{+} tracks"));
   finalStateToTitle.insert(std::pair<TString,TString>("KmTrack","K^{-} tracks"));
   finalStateToTitle.insert(std::pair<TString,TString>("jet","jets"));
+  finalStateToTitle.insert(std::pair<TString,TString>("saturation","saturation"));
   // - PID -> finalState ID
   PIDtoFinalState.insert(std::pair<int, TString>( 211,"pipTrack"));
   PIDtoFinalState.insert(std::pair<int, TString>(-211,"pimTrack"));
@@ -510,7 +511,7 @@ void Analysis::FillHistosTracks() {
   //   with this track
   HD->ExecuteOps(true);
 };
-void Analysis::FilHistosSaturation(){
+void Analysis::FillHistosSaturation(){
   // add kinematic values to `valueMap`                                                                                                         
   valueMap.clear();
   activeEvent = false;
@@ -519,10 +520,23 @@ void Analysis::FilHistosSaturation(){
   valueMap.insert(std::pair<TString,Double_t>( "q2", kin->Q2 ));
   valueMap.insert(std::pair<TString,Double_t>( "w", kin->W ));
   valueMap.insert(std::pair<TString,Double_t>( "y", kin->y ));
+
+  HD->TraverseBreadth(CheckBin());
+  if(!activeEvent) return;
+
   HD->Payload([this](Histos *H){
-    H->Hist("Npair")->Fill(kin->
+    if(kin->CutTrigger() && !kin->CutSaturation() ){
+      H->Hist("Ntrigger")->Fill(kin->phiTrig);
+    }
+    if(kin->CutSaturation()){
+      H->Hist("Npair")->Fill(kin->phiTrig - kin->phiAssoc);
+      H->Hist("eta_trigger")->Fill(kin->etaTrig);
+      H->Hist("eta_assoc")->Fill(kin->etaAssoc);
+      H->Hist("phi_trigger")->Fill(kin->phiTrig);
+      H->Hist("phi_assoc")->Fill(kin->phiAssoc);
+    }
   });
-  
+  HD->ExecuteOps(true);
 };
 
 // jets

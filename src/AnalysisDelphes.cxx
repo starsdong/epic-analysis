@@ -108,6 +108,8 @@ void AnalysisDelphes::Execute() {
     kin->GetJets(itEFlowTrack, itEFlowPhoton, itEFlowNeutralHadron, itParticle);
 
 
+    std::vector<Track*> had1vec;
+    std::vector<Track*> had2vec;
     // track loop - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     itTrack.Reset();
     while(Track *trk = (Track*) itTrack()) {
@@ -121,6 +123,15 @@ void AnalysisDelphes::Execute() {
       if(kv!=PIDtoFinalState.end()) finalStateID = kv->second; else continue;
       if(activeFinalStates.find(finalStateID)==activeFinalStates.end()) continue;
 
+      if(activeFinalStates.find("saturation")!=activeFinalStates.end()){	
+	if(pid == 211 || pid == 321){ // obviously don't want this hard coded
+	  had1vec.push_back(trk);
+	}
+	if(pid == -211 || pid == -321){
+	  had2vec.push_back(trk);
+	}
+      }
+      
       // get parent particle, to check if pion is from vector meson
       GenParticle *trkParticle = (GenParticle*)trk->Particle.GetObject();
       TObjArray *brParticle = (TObjArray*)itParticle.GetCollection();
@@ -168,6 +179,26 @@ void AnalysisDelphes::Execute() {
       };
     }; // end track loop
 
+    for(int i = 0; i < had1vec.size(); i++){
+      kin->vecHadron1 = had1vec[i]->P4();
+      kin->vecHadron2 = TLorentzVector(0,0,0,0);
+      kin->CalculateDiHadronKinematics();
+      kin->SetTrigger(); // check if had1[i] is a trigger candidate     
+      FillHistosSaturation();
+
+      for(int j = 0; j < had2vec.size(); j++){
+	kin->vecHadron2 = had2vec[j]->P4();
+	kin->vecHadron1 = TLorentzVector(0,0,0,0);
+	kin->CalculateDiHadronKinematics(); 
+	kin->SetTrigger(); // check if had2[j] is a trigger candidate
+	FillHistosSaturation();
+
+	kin->vecHadron1 = had1vec[i]->P4();  // now check if the pair satisfies trigger+associate, fill histos
+        kin->CalculateDiHadronKinematics();
+        kin->SetTrigger();
+	FillHistosSaturation();
+      };
+    };
 
     // jet loop - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     finalStateID = "jet";

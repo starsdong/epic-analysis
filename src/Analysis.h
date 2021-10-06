@@ -98,7 +98,7 @@ class Analysis : public TNamed
     // FillHistos methods: fill histograms
     void FillHistosTracks();
     void FillHistosJets();
-
+    void FillHistosSaturation();
     // lambda to check which bins an observable is in, during DAG breadth
     // traversal; it requires `finalStateID`, `valueMap`, and will
     // activate/deactivate bin nodes accoding to values in `valuMap`

@@ -101,6 +101,7 @@ class Kinematics : public TObject
     TLorentzVector vecEleBeam, vecIonBeam;
     TLorentzVector vecElectron, vecW, vecQ;
     TLorentzVector vecHadron;
+    TLorentzVector vecHadron1, vecHadron2; // for saturation/dihadron
     // jets
     std::vector<fastjet::PseudoJet> jetsRec, jetsTrue;
     std::vector<fastjet::PseudoJet> breitJetsRec, breitJetsTrue;
