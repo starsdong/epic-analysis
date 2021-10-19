@@ -14,7 +14,8 @@ Kinematics::Kinematics(
 
   // set ion mass
   IonMass = ProtonMass();
-
+  //IonMass = AuMass(); // need something to change this, or just change back
+  
   // set beam 4-momenta
   Double_t momEleBeam = EMtoP(enEleBeam,ElectronMass());
   Double_t momIonBeam = EMtoP(enIonBeam,IonMass);
@@ -264,7 +265,8 @@ void Kinematics::CalculateDiHadronKinematics() {
   pT1 = pT;
   qT1 = qT;
   pTcom1 = Reject(CvecHadron.Vect(), CvecQ.Vect()).Mag();
-
+  ptVecLab1 = Reject(vecHadron.Vect(), vecQ.Vect());
+  
   vecHadron = vecHadron2;
   this->CalculateHadronKinematics();
   pLab2 = pLab;
@@ -278,6 +280,8 @@ void Kinematics::CalculateDiHadronKinematics() {
   pT2 = pT;
   qT2 = qT;
   pTcom2 = Reject(CvecHadron.Vect(), CvecQ.Vect()).Mag();
+  ptVecLab2 = Reject(vecHadron.Vect(), vecQ.Vect());
+
 };
 // set trigger/associate particle for a hadron pair (saturation)
 void Kinematics::SetTrigger(){
@@ -286,23 +290,31 @@ void Kinematics::SetTrigger(){
     phiTrig = phiLab1;
     etaTrig = etaLab1;
     zTrig = z1;
-
+    ptVecTrig = ptVecLab1;
+    
     pTassoc = pTcom2;
     phiAssoc = phiLab2;
     etaAssoc = etaLab2;
     zAssoc = z2;
+    ptVecAssoc = ptVecLab2;
   };
   if(pTcom1 < pTcom2){
     pTtrig = pTcom2;
     phiTrig = phiLab2;
     etaTrig = etaLab2;
     zTrig = z2;
+    ptVecTrig =	ptVecLab2;
+
 
     pTassoc = pTcom1;
     phiAssoc = phiLab1;
     etaAssoc = etaLab1;
     zAssoc = z1;
+    ptVecAssoc = ptVecLab1;
+
   };
+  deltaphi = PlaneAngle(vecQ.Vect(), ptVecTrig, vecQ.Vect(), ptVecAssoc);
+
 };
 
 // get PID information from PID systems tracks

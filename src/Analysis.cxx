@@ -226,7 +226,7 @@ void Analysis::Prepare() {
     HS->DefineHist1D("jperp","j_{#perp}","GeV", NBINS, 0, 3.0);
     HS->DefineHist1D("qTQ_jet","jet q_{T}/Q","", NBINS, 0, 3.0);
     // saturation
-    HS->DefineHist1D("Npair", "N_{pair} (#delta#phi)","rad", NBINS, -2*M_PI, 2*M_PI );
+    HS->DefineHist1D("Npair", "N_{pair} (#delta#phi)","rad", NBINS, -M_PI/2.0, 3*M_PI/2.0 );
     HS->DefineHist1D("Ntrigger", "N_{trig}","rad", NBINS, -2*M_PI,2*M_PI);  // as a function of phi? and then just divide by n entries?             
     HS->DefineHist1D("eta_trigger","#eta_trig", "", NBINS, -4,4);
     HS->DefineHist1D("eta_assoc","#eta_assoc", "", NBINS, -4,4);
@@ -525,11 +525,16 @@ void Analysis::FillHistosSaturation(){
   if(!activeEvent) return;
 
   HD->Payload([this](Histos *H){
-    if(kin->CutTrigger() && !kin->CutSaturation() ){
+    if(kin->CutTrigger() && (kin->vecHadron1.E() == 0 || kin->vecHadron2.E() == 0)){
       H->Hist("Ntrigger")->Fill(kin->phiTrig);
     }
     if(kin->CutSaturation()){
-      H->Hist("Npair")->Fill(kin->phiTrig - kin->phiAssoc);
+      dynamic_cast<TH2*>(H->Hist("Q2vsX"))->Fill(kin->x,kin->Q2,1);
+      double phifill = kin->deltaphi;
+      if(phifill < -M_PI/2.0) phifill+=2*M_PI;
+      if(phifill >= 3*M_PI/2.0) phifill-=2*M_PI;
+      
+      H->Hist("Npair")->Fill(phifill);
       H->Hist("eta_trigger")->Fill(kin->etaTrig);
       H->Hist("eta_assoc")->Fill(kin->etaAssoc);
       H->Hist("phi_trigger")->Fill(kin->phiTrig);

@@ -74,7 +74,8 @@ class Kinematics : public TObject
     Double_t pLab,pTlab,phiLab,etaLab,z,pT,qT,mX,xF,phiH,phiS; // hadron
     Double_t pLab1,pTlab1,phiLab1,etaLab1,z1,pT1,qT1,mX1,xF1,phiH1,phiS1,pTcom1; // dihadron, positive                                    
     Double_t pLab2,pTlab2,phiLab2,etaLab2,z2,pT2,qT2,mX2,xF2,phiH2,phiS2,pTcom2; // dihadron, negative                                             
-    Double_t pTtrig,pTassoc,phiTrig,phiAssoc,etaTrig,etaAssoc,zTrig,zAssoc; // saturation pairs                                     
+    Double_t pTtrig,pTassoc,phiTrig,phiAssoc,etaTrig,etaAssoc,zTrig,zAssoc,deltaphi; // saturation pairs                                     
+    TVector3 ptVecLab1,ptVecLab2, ptVecTrig, ptVecAssoc; // saturation pairs
   
     Double_t sigmah, Pxh, Pyh; // hadronic final state
 
@@ -137,6 +138,7 @@ class Kinematics : public TObject
     static Double_t ProtonMass()   { return 0.938272; };
     static Double_t KaonMass()     { return 0.493677; };
     static Double_t PionMass()     { return 0.139570; };
+    static Double_t AuMass()       { return 183.4341;   };  // need to double check this
     Double_t IonMass;
 
 
@@ -176,7 +178,7 @@ class Kinematics : public TObject
       TVector3 crossCD = vC.Cross(vD); // CxD
       Double_t sgn = crossAB.Dot(vD); // (AxB).D
       if(fabs(sgn)<0.00001) {
-        cerr << "WARNING: Kinematics:PlaneAngle (AxB).D=0" << endl;
+	//        cerr << "WARNING: Kinematics:PlaneAngle (AxB).D=0" << endl;
         return -10000;
       };
       sgn /= fabs(sgn); // sign of (AxB).D
@@ -240,9 +242,12 @@ class Kinematics : public TObject
           ;
     };
     Bool_t CutSaturation(){
-      return (pTtrig > 2.0 && pTassoc > 1.0
+      return (pTtrig > 2.0 && pTassoc > 1.0 && pTassoc < pTtrig
               && zTrig > 0.2 && zAssoc < 0.4
               );
+    };
+    Bool_t CutTrigger(){
+      return( pTtrig > 2.0 && zTrig > 0.2);
     };
     // ==========================================================
 

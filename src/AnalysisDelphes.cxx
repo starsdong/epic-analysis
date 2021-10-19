@@ -107,7 +107,6 @@ void AnalysisDelphes::Execute() {
     // TODO: should this have an option for clustering method?
     kin->GetJets(itEFlowTrack, itEFlowPhoton, itEFlowNeutralHadron, itParticle);
 
-
     std::vector<Track*> had1vec;
     std::vector<Track*> had2vec;
     // track loop - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -119,18 +118,20 @@ void AnalysisDelphes::Execute() {
       // - check PID, to see if it's a final state we're interested in for
       //   histograms; if not, proceed to next track
       pid = trk->PID;
+
+      if(activeFinalStates.find("saturation")!=activeFinalStates.end()){
+	if(pid == 211 || pid == 321 || pid == 2212){	
+	  // also need pi0's at some point
+          had1vec.push_back(trk);
+        }
+	if(pid == -211 || pid == -321 || pid == -2212){
+          had2vec.push_back(trk);
+        }
+      }
+
       auto kv = PIDtoFinalState.find(pid);
       if(kv!=PIDtoFinalState.end()) finalStateID = kv->second; else continue;
       if(activeFinalStates.find(finalStateID)==activeFinalStates.end()) continue;
-
-      if(activeFinalStates.find("saturation")!=activeFinalStates.end()){	
-	if(pid == 211 || pid == 321){ // obviously don't want this hard coded
-	  had1vec.push_back(trk);
-	}
-	if(pid == -211 || pid == -321){
-	  had2vec.push_back(trk);
-	}
-      }
       
       // get parent particle, to check if pion is from vector meson
       GenParticle *trkParticle = (GenParticle*)trk->Particle.GetObject();
@@ -178,7 +179,8 @@ void AnalysisDelphes::Execute() {
 
       };
     }; // end track loop
-
+    
+    finalStateID="saturation";
     for(int i = 0; i < had1vec.size(); i++){
       kin->vecHadron1 = had1vec[i]->P4();
       kin->vecHadron2 = TLorentzVector(0,0,0,0);
@@ -189,7 +191,7 @@ void AnalysisDelphes::Execute() {
       for(int j = 0; j < had2vec.size(); j++){
 	kin->vecHadron2 = had2vec[j]->P4();
 	kin->vecHadron1 = TLorentzVector(0,0,0,0);
-	kin->CalculateDiHadronKinematics(); 
+	kin->CalculateDiHadronKinematics();
 	kin->SetTrigger(); // check if had2[j] is a trigger candidate
 	FillHistosSaturation();
 
@@ -200,6 +202,8 @@ void AnalysisDelphes::Execute() {
       };
     };
 
+
+    
     // jet loop - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     finalStateID = "jet";
     if(activeFinalStates.find(finalStateID)!=activeFinalStates.end()) {
